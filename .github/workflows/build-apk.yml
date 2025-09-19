@@ -40,6 +40,12 @@ jobs:
         pip install buildozer cython==0.29.28
         pip install kivy[base] requests pillow plyer
 
+    - name: Pre-accept Android SDK licenses
+      run: |
+        mkdir -p $HOME/.android
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/.android/repositories.cfg
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $HOME/.android/repositories.cfg
+
     - name: Cache buildozer global directory
       uses: actions/cache@v4
       with:
@@ -56,9 +62,16 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildozer-
 
+    - name: Set environment variables for license acceptance
+      run: |
+        echo "ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+        echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+
     - name: Build APK with Buildozer
       run: |
-        buildozer android debug
+        # Accept licenses non-interactively
+        export BUILDOZER_ACCEPT_ANDROID_SDK_LICENSE=1
+        yes | buildozer android debug
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
