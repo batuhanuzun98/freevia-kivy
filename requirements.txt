@@ -1,0 +1,29 @@
+# Core Kivy framework# Core Kivy dependencies
+
+kivy>=2.1.0kivy>=2.1.0
+
+kivymd>=1.0.0
+
+# Networking
+
+requests>=2.25.0# Application dependencies
+
+requests>=2.25.0
+
+# Image processingPillow>=8.0.0
+
+Pillow>=8.0.0plyer>=2.0.0
+
+
+
+# Mobile features (GPS, camera, etc.)# Build dependencies (for development)
+
+plyer>=2.0.0buildozer>=1.4.0
+
+cython>=0.29.0
+# Map functionality
+kivy-garden.mapview>=1.0.0
+
+# Build dependencies (for development only)
+buildozer>=1.4.0
+cython>=0.29.0
