@@ -28,7 +28,7 @@ source.exclude_patterns = */test/*,*/tests/*,*/Lib/test/*,*/badsyntax_pep3120.py
 version = 0.1
 
 # (list) Application requirements
-requirements = python3,kivy==2.1.0,requests,Pillow,plyer,pyjnius
+requirements = python3,kivy==2.3.1,requests,Pillow,plyer,pyjnius
 
 # (list) Garden requirements
 garden_requirements = mapview
