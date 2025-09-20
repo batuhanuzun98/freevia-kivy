@@ -145,17 +145,18 @@ def create_blue_pin():
 
 def ensure_blue_pin_exists():
     """Ensure blue pin image exists, create if not"""
-    if not os.path.exists('blue_pin.png'):
+    blue_pin_path = get_data_file_path('blue_pin.png')
+    if not os.path.exists(blue_pin_path):
         try:
             pin = create_blue_pin()
             if pin:
-                pin.save('blue_pin.png')
-                print("Blue pin marker created: blue_pin.png")
-                return True
+                pin.save(blue_pin_path)
+                print(f"Blue pin marker created: {blue_pin_path}")
+                return blue_pin_path
         except Exception as e:
             print(f"Could not create blue pin: {e}")
-            return False
-    return True
+            return None
+    return blue_pin_path
 
 import kivy
 from kivy.app import App
@@ -197,7 +198,31 @@ import csv
 import os
 from kivy_garden.mapview import MapView, MapMarker
 
-USERS_FILE = 'users.csv'
+# Cross-platform file path handling
+def get_app_data_dir():
+    """Get the appropriate data directory for the current platform"""
+    if sys.platform == "ios":
+        # iOS: Use Documents directory
+        from kivy.utils import platform
+        if platform == "ios":
+            import os
+            return os.path.expanduser('~/Documents')
+    elif sys.platform == "android":
+        # Android: Use external storage
+        from kivy.utils import platform
+        if platform == "android":
+            from android.storage import primary_external_storage_path
+            return primary_external_storage_path()
+    
+    # Desktop: Use current directory
+    return os.getcwd()
+
+def get_data_file_path(filename):
+    """Get the full path for a data file"""
+    data_dir = get_app_data_dir()
+    return os.path.join(data_dir, filename)
+
+USERS_FILE = get_data_file_path('users.csv')
 
 # Custom iOS-style components
 class IOSButton(Button):
@@ -1429,8 +1454,10 @@ class MapScreen(Screen):
             if self._location_marker:
                 self.mapview.remove_marker(self._location_marker)
             # Use blue pin for user location
-            self._location_marker = MapMarker(lat=lat, lon=lon, source='blue_pin.png')
-            self.mapview.add_marker(self._location_marker)
+            blue_pin_path = ensure_blue_pin_exists()
+            if blue_pin_path:
+                self._location_marker = MapMarker(lat=lat, lon=lon, source=blue_pin_path)
+                self.mapview.add_marker(self._location_marker)
         else:
             print("Location not available")
 

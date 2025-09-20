@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Location permissions for GPS functionality -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Freevia needs access to your location to show nearby items and help you find things in your area.</string>
+    
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Freevia needs access to your location to show nearby items and help you find things in your area.</string>
+    
+    <!-- Photo library access for uploading item images -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Freevia needs access to your photo library to let you upload images of items you want to share.</string>
+    
+    <!-- Camera access for taking photos -->
+    <key>NSCameraUsageDescription</key>
+    <string>Freevia needs access to your camera to let you take photos of items you want to share.</string>
+    
+    <!-- Motion sensors (if needed for any features) -->
+    <key>NSMotionUsageDescription</key>
+    <string>Freevia may use motion sensors to enhance your experience.</string>
+    
+    <!-- Network usage -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+    
+    <!-- Background modes (if needed) -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>location</string>
+    </array>
+    
+    <!-- Supported interface orientations -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+    </array>
+    
+    <!-- Launch screen -->
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    
+    <!-- Status bar style -->
+    <key>UIStatusBarStyle</key>
+    <string>UIStatusBarStyleDefault</string>
+</dict>
+</plist>

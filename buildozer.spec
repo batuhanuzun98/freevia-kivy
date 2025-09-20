@@ -31,10 +31,17 @@ source.exclude_patterns = */test/*,*/tests/*,*/Lib/test/*,*/badsyntax_pep3120.py
 version = 0.1
 
 # (list) Application requirements
-requirements = python3,kivy==2.3.1,requests,Pillow,plyer,pyjnius
+# Note: pyjnius for Android, pyobjus for iOS (platform-specific)
+requirements = python3,kivy==2.3.1,requests,Pillow,plyer
 
 # (list) Garden requirements
 garden_requirements = mapview
+
+# (list) iOS specific requirements
+#requirements.ios = pyobjus
+
+# (list) Android specific requirements
+#requirements.android = pyjnius
 
 # (str) Supported orientation (landscape, portrait or all)
 orientation = portrait
@@ -87,6 +94,50 @@ android.sdk_path =
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 android.private_storage = True
+
+[app:ios]
+
+# (str) Bundle identifier
+ios.bundle_id = com.freevia.app
+
+# (str) Bundle name
+ios.bundle_name = Freevia
+
+# (str) Bundle display name
+ios.bundle_display_name = Freevia
+
+# (str) Bundle version
+ios.bundle_version = 1.0.0
+
+# (str) Minimum iOS version
+ios.deployment_target = 12.0
+
+# (str) iOS app icon path
+#ios.icon = icon.png
+
+# (str) iOS launch screen storyboard path
+#ios.launch_storyboard = launch.storyboard
+
+# (list) iOS frameworks to link with
+ios.frameworks = CoreLocation, MapKit, CoreMotion, Photos, AVFoundation
+
+# (list) iOS permissions
+ios.permissions = NSLocationWhenInUseUsageDescription, NSLocationAlwaysUsageDescription, NSPhotoLibraryUsageDescription, NSCameraUsageDescription
+
+# (str) Team ID for code signing (required for device deployment)
+#ios.team_id = XXXXXXXXXX
+
+# (str) Provisioning profile name (for device deployment)
+#ios.provisioning_profile = 
+
+# (str) Code signing identity
+#ios.code_sign_identity = iPhone Developer
+
+# (bool) Enable bitcode
+ios.bitcode = False
+
+# (bool) Enable ARC (Automatic Reference Counting)
+ios.arc = True
 
 [buildozer:remote]
 
