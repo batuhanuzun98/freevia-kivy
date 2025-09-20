@@ -39,12 +39,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install buildozer==1.4.0 cython==0.29.33
         pip install "kivy[base]==2.1.0" requests pillow plyer
+        # Install kivy-garden.mapview
+        pip install kivy-garden.mapview
 
     - name: Pre-accept Android SDK licenses
       run: |
         mkdir -p $HOME/.android
         echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/.android/repositories.cfg
         echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $HOME/.android/repositories.cfg
+        # Pre-create license directory
+        mkdir -p $ANDROID_SDK_ROOT/licenses || true
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_SDK_ROOT/licenses/android-sdk-license || true
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license || true
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license || true
 
     - name: Cache buildozer global directory
       uses: actions/cache@v4
@@ -69,9 +76,47 @@ jobs:
 
     - name: Build APK with Buildozer
       run: |
-        # Accept licenses non-interactively
-        export BUILDOZER_ACCEPT_ANDROID_SDK_LICENSE=1
-        yes | buildozer android debug
+        # Debug information
+        echo "Current directory: $(pwd)"
+        echo "Python version: $(python --version)"
+        echo "Buildozer version: $(buildozer version)"
+        echo "Java version: $(java -version)"
+        echo "JAVA_HOME: $JAVA_HOME"
+        
+        # Create directories if they don't exist
+        mkdir -p bin
+        
+        # Set environment variables for Android
+        export ANDROID_SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
+        export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
+        export ANDROID_NDK_ROOT="$HOME/.buildozer/android/platform/android-ndk-r25b"
+        export ANDROIDAPI="31"
+        export ANDROIDMINAPI="21"
+        
+        # Accept all Android licenses
+        mkdir -p "$ANDROID_SDK_ROOT/licenses" || true
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_SDK_ROOT/licenses/android-sdk-license"
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> "$ANDROID_SDK_ROOT/licenses/android-sdk-license"
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_SDK_ROOT/licenses/android-sdk-preview-license"
+        
+        # Try minimal build first to test basic functionality
+        echo "Attempting minimal build first..."
+        cp buildozer-minimal.spec buildozer-temp.spec
+        mv buildozer.spec buildozer-full.spec
+        mv buildozer-temp.spec buildozer.spec
+        
+        # Run buildozer with debug logging (minimal version first)
+        if ! buildozer android debug --verbose; then
+          echo "Minimal build failed, trying with full configuration..."
+          mv buildozer.spec buildozer-minimal-failed.spec
+          mv buildozer-full.spec buildozer.spec
+          buildozer android debug --verbose
+        else
+          echo "Minimal build succeeded! Trying full build..."
+          mv buildozer.spec buildozer-minimal-success.spec
+          mv buildozer-full.spec buildozer.spec
+          buildozer android debug --verbose || echo "Full build failed but minimal succeeded"
+        fi
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4

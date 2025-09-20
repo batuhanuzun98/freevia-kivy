@@ -18,11 +18,8 @@ source.include_exts = py,png,jpg,kv,atlas,csv
 # (str) Application versioning (method 1)
 version = 0.1
 
-# (list) Application requirements
-requirements = python3,kivy==2.1.0,requests,Pillow,plyer,pyjnius
-
-# (list) Garden requirements
-garden_requirements = mapview
+# (list) Application requirements - minimal set
+requirements = python3,kivy==2.1.0,requests,Pillow,plyer
 
 # (str) Supported orientation (landscape, portrait or all)
 orientation = portrait
@@ -53,7 +50,7 @@ android.permissions = INTERNET,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION,CAMER
 android.theme = @android:style/Theme.NoTitleBar
 
 # (str) The Android arch to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
-android.archs = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a
 
 # (int) Target Android API
 android.api = 31
@@ -69,37 +66,3 @@ android.sdk = 31
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 android.private_storage = True
-
-[buildozer:remote]
-
-# (str) Remote server IP
-#remote.server = 192.168.1.1
-
-# (str) Remote server port
-#remote.port = 22
-
-# (str) Remote server username
-#remote.username = user
-
-# (str) Remote server password (optional)
-#remote.password = 
-
-# (str) Path to remote directory
-#remote.path = /home/user/buildozer
-
-[buildozer:vm]
-
-# (str) VM IP
-#vm.ip = 127.0.0.1
-
-# (str) VM port
-#vm.port = 2222
-
-# (str) VM username
-#vm.username = kivy
-
-# (str) VM password
-#vm.password = kivy
-
-# (str) VM path
-#vm.path = /home/kivy/buildozer
