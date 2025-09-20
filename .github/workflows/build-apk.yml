@@ -27,12 +27,53 @@ jobs:
           git zip unzip openjdk-8-jdk python3-pip autoconf libtool \
           pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev \
           libtinfo6 cmake libffi-dev libssl-dev build-essential \
-          libltdl-dev ccache
+          libltdl-dev ccache wget curl
 
-    - name: Set up Java environment
+    - name: Install Android SDK and tools manually
+      run: |
+        # Create Android SDK directory
+        mkdir -p $HOME/.buildozer/android/platform
+        cd $HOME/.buildozer/android/platform
+        
+        # Download and install Android SDK command line tools
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+        unzip -q commandlinetools-linux-8512546_latest.zip
+        rm commandlinetools-linux-8512546_latest.zip
+        
+        # Create proper SDK structure
+        mkdir -p android-sdk/cmdline-tools/latest
+        mv cmdline-tools/* android-sdk/cmdline-tools/latest/
+        rmdir cmdline-tools
+        
+        # Set up environment
+        export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+        export ANDROID_HOME=$ANDROID_SDK_ROOT
+        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
+        
+        # Accept licenses first
+        mkdir -p $ANDROID_SDK_ROOT/licenses
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
+        
+        # Install required SDK components
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+        
+        # Download and install Android NDK
+        wget -q https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
+        unzip -q android-ndk-r25b-linux.zip
+        mv android-ndk-r25b android-ndk-r25b
+        rm android-ndk-r25b-linux.zip
+
+    - name: Set up Java and Android environment
       run: |
         echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV
         echo "/usr/lib/jvm/java-8-openjdk-amd64/bin" >> $GITHUB_PATH
+        echo "ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+        echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+        echo "ANDROID_NDK_ROOT=$HOME/.buildozer/android/platform/android-ndk-r25b" >> $GITHUB_ENV
+        echo "$HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        echo "$HOME/.buildozer/android/platform/android-sdk/platform-tools" >> $GITHUB_PATH
 
     - name: Install Python dependencies
       run: |
@@ -42,16 +83,13 @@ jobs:
         # Install kivy-garden.mapview
         pip install kivy-garden.mapview
 
-    - name: Pre-accept Android SDK licenses
+    - name: Verify Android SDK installation
       run: |
-        mkdir -p $HOME/.android
-        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/.android/repositories.cfg
-        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $HOME/.android/repositories.cfg
-        # Pre-create license directory
-        mkdir -p $ANDROID_SDK_ROOT/licenses || true
-        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_SDK_ROOT/licenses/android-sdk-license || true
-        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license || true
-        echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license || true
+        echo "Verifying Android SDK installation..."
+        ls -la $HOME/.buildozer/android/platform/android-sdk/
+        echo "Checking sdkmanager..."
+        which sdkmanager || echo "sdkmanager not in PATH"
+        $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --version
 
     - name: Cache buildozer global directory
       uses: actions/cache@v4
@@ -69,10 +107,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildozer-
 
-    - name: Set environment variables for license acceptance
+    - name: Final environment setup
       run: |
-        echo "ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
-        echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+        echo "Final environment check..."
+        echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+        echo "ANDROID_HOME: $ANDROID_HOME" 
+        echo "ANDROID_NDK_ROOT: $ANDROID_NDK_ROOT"
+        echo "JAVA_HOME: $JAVA_HOME"
 
     - name: Build APK with Buildozer
       run: |
@@ -86,18 +127,10 @@ jobs:
         # Create directories if they don't exist
         mkdir -p bin
         
-        # Set environment variables for Android
-        export ANDROID_SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
-        export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
-        export ANDROID_NDK_ROOT="$HOME/.buildozer/android/platform/android-ndk-r25b"
-        export ANDROIDAPI="31"
-        export ANDROIDMINAPI="21"
-        
-        # Accept all Android licenses
-        mkdir -p "$ANDROID_SDK_ROOT/licenses" || true
-        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_SDK_ROOT/licenses/android-sdk-license"
-        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> "$ANDROID_SDK_ROOT/licenses/android-sdk-license"
-        echo "84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_SDK_ROOT/licenses/android-sdk-preview-license"
+        # Verify environment is properly set
+        echo "SDK Root: $ANDROID_SDK_ROOT"
+        echo "NDK Root: $ANDROID_NDK_ROOT"
+        ls -la "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/" || echo "cmdline-tools not found"
         
         # Try minimal build first to test basic functionality
         echo "Attempting minimal build first..."

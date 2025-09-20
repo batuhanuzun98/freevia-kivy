@@ -64,5 +64,11 @@ android.ndk = 25b
 # (str) Android SDK version to use
 android.sdk = 31
 
+# (str) NDK path (if empty, it will be auto-detected)
+android.ndk_path = 
+
+# (str) SDK path (if empty, it will be auto-detected)
+android.sdk_path =
+
 # (bool) Use --private data storage (True) or --dir public storage (False)
 android.private_storage = True
