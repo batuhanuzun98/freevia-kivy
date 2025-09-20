@@ -12,6 +12,9 @@ package.domain = com.freevia
 # (str) Source code where the main.py live
 source.dir = .
 
+# (str) Main entry point for the application
+source.main = main.py
+
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas,csv
 
