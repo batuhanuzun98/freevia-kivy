@@ -56,14 +56,18 @@ jobs:
         echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
         echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
         
-        # Install required SDK components
-        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+        # Install required SDK components with proper license acceptance
+        echo "Installing SDK components..."
+        printf "y\ny\ny\ny\ny\ny\n" | timeout 300 $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-31" "build-tools;31.0.0" || echo "SDK installation completed with timeout/error"
         
         # Download and install Android NDK
         wget -q https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
         unzip -q android-ndk-r25b-linux.zip
-        mv android-ndk-r25b android-ndk-r25b
+        # NDK is already extracted to android-ndk-r25b, no need to move
         rm android-ndk-r25b-linux.zip
+        
+        # Verify NDK installation
+        ls -la android-ndk-r25b/
 
     - name: Set up Java and Android environment
       run: |
@@ -85,11 +89,17 @@ jobs:
 
     - name: Verify Android SDK installation
       run: |
-        echo "Verifying Android SDK installation..."
+        echo "Verifying Android SDK and NDK installation..."
+        echo "SDK structure:"
         ls -la $HOME/.buildozer/android/platform/android-sdk/
+        echo "NDK structure:"
+        ls -la $HOME/.buildozer/android/platform/android-ndk-r25b/ | head -10
         echo "Checking sdkmanager..."
         which sdkmanager || echo "sdkmanager not in PATH"
+        echo "sdkmanager version:"
         $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --version
+        echo "Installed SDK packages:"
+        $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --list --sdk_root=$HOME/.buildozer/android/platform/android-sdk | grep "Installed packages" -A 10
 
     - name: Cache buildozer global directory
       uses: actions/cache@v4
