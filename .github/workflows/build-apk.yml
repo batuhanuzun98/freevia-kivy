@@ -210,6 +210,10 @@ jobs:
         # Remove the specific problematic file mentioned in the error
         find . -name "badsyntax_pep3120.py" -delete 2>/dev/null || true
         
+        # Remove any Python test directories that might interfere
+        find . -type d -name "test" -exec rm -rf {} + 2>/dev/null || true
+        find . -type d -path "*/Lib/test" -exec rm -rf {} + 2>/dev/null || true
+        
         echo "Cleanup completed"
 
     - name: Build APK with Buildozer
@@ -237,6 +241,10 @@ jobs:
         # Clean any previous buildozer artifacts
         echo "Cleaning previous build artifacts..."
         buildozer android clean || echo "No previous build to clean"
+        
+        # Also remove .buildozer directory to ensure completely fresh build
+        echo "Removing any existing .buildozer directory for fresh build..."
+        rm -rf .buildozer || echo "No .buildozer directory to remove"
         
         # Try minimal build first to test basic functionality
         echo "Attempting minimal build first..."
