@@ -32,17 +32,41 @@ jobs:
     - name: Install Android SDK and tools manually
       run: |
         # Create Android SDK directory
+        echo "Creating Android SDK directory..."
+        echo "Available disk space:"
+        df -h
+        echo "Home directory permissions:"
+        ls -la $HOME/
         mkdir -p $HOME/.buildozer/android/platform
         cd $HOME/.buildozer/android/platform
+        echo "Current directory: $(pwd)"
+        echo "Directory permissions:"
+        ls -la $HOME/.buildozer/android/
         
         # Download and install Android SDK command line tools
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-        unzip -q commandlinetools-linux-8512546_latest.zip
+        echo "Downloading Android SDK command line tools..."
+        if ! wget -v https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip; then
+          echo "Download failed, trying alternative URL..."
+          wget -v https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O commandlinetools-linux-8512546_latest.zip
+        fi
+        
+        echo "Verifying download..."
+        ls -la commandlinetools-linux-8512546_latest.zip
+        
+        echo "Extracting command line tools..."
+        if ! unzip commandlinetools-linux-8512546_latest.zip; then
+          echo "Unzip failed, checking file integrity..."
+          file commandlinetools-linux-8512546_latest.zip
+          exit 1
+        fi
         rm commandlinetools-linux-8512546_latest.zip
         
         # Create proper SDK structure
+        echo "Creating SDK directory structure..."
         mkdir -p android-sdk/cmdline-tools/latest
-        mv cmdline-tools/* android-sdk/cmdline-tools/latest/
+        ls -la
+        echo "Moving command line tools..."
+        mv cmdline-tools/* android-sdk/cmdline-tools/latest/ || { echo "Move failed"; ls -la cmdline-tools/; exit 1; }
         rmdir cmdline-tools
         
         # Create the old tools/bin directory structure that buildozer expects
@@ -52,10 +76,16 @@ jobs:
         ln -s ../../cmdline-tools/latest/bin/avdmanager android-sdk/tools/bin/avdmanager
         
         # Also download the deprecated SDK tools that buildozer might need
+        echo "Downloading deprecated SDK tools for buildozer compatibility..."
         cd android-sdk
-        wget -q https://dl.google.com/android/repository/tools_r26.1.1-linux.zip
-        unzip -q tools_r26.1.1-linux.zip
-        rm tools_r26.1.1-linux.zip
+        if wget -v https://dl.google.com/android/repository/tools_r26.1.1-linux.zip; then
+          echo "Extracting deprecated SDK tools..."
+          unzip tools_r26.1.1-linux.zip
+          rm tools_r26.1.1-linux.zip
+          echo "Deprecated tools installed successfully"
+        else
+          echo "Failed to download deprecated tools, continuing with symlinks only..."
+        fi
         # This creates a tools/ directory with the old structure
         cd ..
         
@@ -75,13 +105,24 @@ jobs:
         printf "y\ny\ny\ny\ny\ny\n" | timeout 300 $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-31" "build-tools;31.0.0" || echo "SDK installation completed with timeout/error"
         
         # Download and install Android NDK
-        wget -q https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
-        unzip -q android-ndk-r25b-linux.zip
+        echo "Downloading Android NDK..."
+        if ! wget -v https://dl.google.com/android/repository/android-ndk-r25b-linux.zip; then
+          echo "NDK download failed"
+          exit 1
+        fi
+        
+        echo "Extracting Android NDK..."
+        if ! unzip android-ndk-r25b-linux.zip; then
+          echo "NDK extraction failed"
+          ls -la android-ndk-r25b-linux.zip
+          exit 1
+        fi
         # NDK is already extracted to android-ndk-r25b, no need to move
         rm android-ndk-r25b-linux.zip
         
         # Verify NDK installation
-        ls -la android-ndk-r25b/
+        echo "Verifying NDK installation..."
+        ls -la android-ndk-r25b/ | head -5
 
     - name: Set up Java and Android environment
       run: |
