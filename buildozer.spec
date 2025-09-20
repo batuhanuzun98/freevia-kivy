@@ -15,6 +15,15 @@ source.dir = .
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas,csv
 
+# (list) Source files to exclude (empty by default)
+source.exclude_exts = spec
+
+# (list) List of directory to exclude (let empty to not exclude anything)
+source.exclude_dirs = tests, bin, venv, .tox, .git, __pycache__, .pytest_cache, .coverage, htmlcov, .mypy_cache, .vscode, cache
+
+# (list) List of exclusions using pattern matching
+source.exclude_patterns = test_*,*_test.py,*/test_*,*/tests/*,*/.git/*,*/.__pycache__/*,*.pyc,*.pyo,*.egg-info/*,*/.tox/*,*/build/*,*/dist/*
+
 # (str) Application versioning (method 1)
 version = 0.1
 
