@@ -19,7 +19,10 @@ source.include_exts = py,png,jpg,kv,atlas,csv
 version = 0.1
 
 # (list) Application requirements
-requirements = python3,kivy==2.1.0,requests>=2.25.0,Pillow>=8.0.0,plyer>=2.0.0,kivy-garden.mapview>=1.0.0
+requirements = python3,kivy==2.1.0,requests>=2.25.0,Pillow>=8.4.0,plyer>=2.0.0,pyjnius
+
+# (list) Garden requirements
+garden_requirements = mapview
 
 # (str) Supported orientation (landscape, portrait or all)
 orientation = portrait

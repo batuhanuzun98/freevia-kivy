@@ -18,7 +18,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.9.19'
 
     - name: Install system dependencies
       run: |
@@ -37,8 +37,8 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install buildozer cython==0.29.28
-        pip install kivy[base] requests pillow plyer
+        pip install buildozer==1.4.0 cython==0.29.33
+        pip install "kivy[base]==2.1.0" requests pillow plyer
 
     - name: Pre-accept Android SDK licenses
       run: |
