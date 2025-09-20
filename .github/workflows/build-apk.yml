@@ -141,6 +141,8 @@ jobs:
         pip install "kivy[base]==2.1.0" requests pillow plyer
         # Install kivy-garden.mapview
         pip install kivy-garden.mapview
+        # Update python-for-android to latest for better file exclusion
+        pip install --upgrade python-for-android
 
     - name: Verify Android SDK installation
       run: |
@@ -205,6 +207,9 @@ jobs:
         # Remove any files with potentially problematic unicode names
         find . -name "*.egg-info" -type d -exec rm -rf {} + 2>/dev/null || true
         
+        # Remove the specific problematic file mentioned in the error
+        find . -name "badsyntax_pep3120.py" -delete 2>/dev/null || true
+        
         echo "Cleanup completed"
 
     - name: Build APK with Buildozer
@@ -228,6 +233,10 @@ jobs:
         export LC_ALL=C.UTF-8
         export LANG=C.UTF-8
         export PYTHONIOENCODING=utf-8
+        
+        # Clean any previous buildozer artifacts
+        echo "Cleaning previous build artifacts..."
+        buildozer android clean || echo "No previous build to clean"
         
         # Try minimal build first to test basic functionality
         echo "Attempting minimal build first..."

@@ -22,7 +22,7 @@ source.exclude_exts = spec
 source.exclude_dirs = tests, bin, venv, .tox, .git, __pycache__, .pytest_cache, .coverage, htmlcov, .mypy_cache, .vscode, cache
 
 # (list) List of exclusions using pattern matching
-source.exclude_patterns = test_*,*_test.py,*/test_*,*/tests/*,*/.git/*,*/.__pycache__/*,*.pyc,*.pyo,*.egg-info/*,*/.tox/*,*/build/*,*/dist/*
+source.exclude_patterns = */test/*,*/tests/*,*/badsyntax_pep3120.py,test_*,*_test.py,*/.git/*,*/.__pycache__/*,*.pyc,*.pyo,*.egg-info/*,*/.tox/*,*/build/*,*/dist/*
 
 # (str) Application versioning (method 1)
 version = 0.1
